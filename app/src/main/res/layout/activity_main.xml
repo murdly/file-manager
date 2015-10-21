@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/colorPrimary"
+        android:gravity="top|start"
+        android:minHeight="?attr/actionBarSize">
+
+        <android.support.v7.widget.ActionMenuView
+            android:id="@+id/menu_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+    </android.support.v7.widget.Toolbar>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/toolbar_bottom">
+
+
+        <ListView
+            android:id="@+id/files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="singleChoice"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"/>
+
+
+        <TextView
+            android:id="@+id/emptyFolder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="@string/empty_folder"/>
+
+    </FrameLayout>
+</RelativeLayout>
