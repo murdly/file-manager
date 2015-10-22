@@ -50,24 +50,39 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         mModel.setPathLevelUp();
         refresh();
 
-        if(!mListPositions.isEmpty())
+        if (!mListPositions.isEmpty())
             mView.restore(mListPositions.remove(mListPositions.size() - 1));
     }
 
     @Override
     public void createDir() {
-        File f = new File(mModel.getCurrentPath(), "mojfolder2");
-        boolean b = false;
-        if(!f.exists())
-            b= f.mkdir();
+        CreateDirListener listener = new CreateDirListener();
+        DirNameDialog.newInstance(listener).show(mView.getContext().getFragmentManager(), "create");
+    }
 
-        refresh();
-        Log.d("Makedir" ,"path " + mModel.getCurrentPath() + " created " + b + " ex " + f.exists());
+    @Override
+    public void deleteDir(String path) {
+        if(mModel.delete(path))
+            refresh();
+        else
+            mView.showToast(R.string.must_be_empty);
+
+        mView.endEdition();
     }
 
     private void refresh() {
         mModel.collectDirs();
         mView.notifyAdapter();
         mView.setToolbarTitle(mModel.getCurrentPath());
+    }
+
+    private class CreateDirListener implements DirNameDialog.DirNameListener{
+        boolean created = false;
+        @Override
+        public void onResult(String dirname) {
+            created = mModel.create(dirname);
+            if(created) refresh();
+            else mView.showToast(R.string.already_exists);
+        }
     }
 }

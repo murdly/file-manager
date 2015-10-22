@@ -5,4 +5,9 @@
     <string name="delete">Usuń</string>
     <string name="cut">Wytnij</string>
     <string name="paste">Wklej</string>
+    <string name="already_exists">Taki folder już istnieje.</string>
+    <string name="must_be_empty">Folder musi być pusty.</string>
+    <string name="set_filename">Podaj nazwę folderu</string>
+    <string name="create">Utwórz</string>
+    <string name="cancel">Anuluj</string>
 </resources>

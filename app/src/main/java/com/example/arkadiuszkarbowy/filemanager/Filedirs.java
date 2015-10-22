@@ -56,4 +56,14 @@ public class Filedirs {
     public String getCurrentPath() {
         return mPath;
     }
+
+    public boolean delete(String path) {
+        File f = new File(path);
+        return f.exists() && f.delete();
+    }
+
+    public boolean create(String dirname) {
+        File f = new File(getCurrentPath() + File.separator + dirname);
+        return !f.exists() && f.mkdir();
+    }
 }

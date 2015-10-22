@@ -1,5 +1,6 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -85,8 +86,19 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     }
 
     @Override
-    public Context getContext() {
+    public Activity getContext() {
         return this;
+    }
+
+    @Override
+    public void showToast(int resId) {
+        Toast.makeText(getContext(), getString(resId), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void endEdition() {
+        mAdapter.uncheck();
+        enableItemOptions(false);
     }
 
     private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
@@ -97,17 +109,17 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
                 if (!success) Toast.makeText(getContext(), "not a directory", Toast.LENGTH_LONG).show();
                 else
                     mPresenter.retainPosition(mFirstVisibleItemPosition);
-            }else{
+            } else {
                 uncheckIfCorresponding(position);
             }
         }
     };
 
-    private boolean isSingleItemChecked(){
+    private boolean isSingleItemChecked() {
         return mAdapter.hasItemChecked();
     }
 
-    private void uncheckIfCorresponding(int position){
+    private void uncheckIfCorresponding(int position) {
         if (mAdapter.isChecked(position)) {
             mAdapter.uncheck();
             enableItemOptions(false);
@@ -116,7 +128,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
 
     @Override
     public void onBackPressed() {
-        if(isSingleItemChecked()) {
+        if (isSingleItemChecked()) {
             mAdapter.uncheck();
             enableItemOptions(false);
         }
@@ -165,6 +177,10 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
             switch (item.getItemId()) {
                 case R.id.action_new_dir:
                     mPresenter.createDir();
+                    break;
+                case R.id.action_delete:
+                    String path = mAdapter.getCheckedItemPath();
+                    mPresenter.deleteDir(path);
                     break;
             }
 

@@ -13,4 +13,6 @@ public interface FileManagerPresenter {
     void goUp();
 
     void createDir();
+
+    void deleteDir(String path);
 }

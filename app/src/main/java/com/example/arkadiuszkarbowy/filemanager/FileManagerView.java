@@ -1,6 +1,6 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
-import android.content.Context;
+import android.app.Activity;
 
 import java.util.List;
 
@@ -12,5 +12,7 @@ public interface FileManagerView {
     void setToolbarTitle(String title);
     void notifyAdapter();
     void restore(int position);
-    Context getContext();
+    Activity getContext();
+    void showToast(int resId);
+    void endEdition();
 }

@@ -69,6 +69,10 @@ public class FileAdapter extends ArrayAdapter<String> {
         notifyDataSetChanged();
     }
 
+    public String getCheckedItemPath() {
+        return getItem(mItemCheckedPosition);
+    }
+
     public static class ViewHolder {
         public ImageView mFileIcon;
         private TextView mFileName;
