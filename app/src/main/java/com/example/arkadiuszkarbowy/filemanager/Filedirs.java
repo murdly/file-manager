@@ -1,5 +1,8 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
+import android.os.Environment;
+import android.util.Log;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,26 +13,26 @@ import java.util.List;
  */
 public class Filedirs {
 
-    private String mPath = File.separator;
+    private String mPath = "/data/user/0/com.example.arkadiuszkarbowy.filemanager";//File.separator;
     private List<String> mFilenames;
 
     public Filedirs() {
         this.mFilenames = new ArrayList<>();
     }
 
-    public boolean dirCanRead(){
+    public boolean dirCanRead() {
         return new File(mPath).canRead();
     }
+
     public List<String> collectDirs() {
         if (!mFilenames.isEmpty()) mFilenames.clear();
 
         File dir = new File(mPath);
-
         String[] list = dir.list();
         if (list != null) {
             for (String file : list) {
                 if (!file.startsWith(".")) {
-                    mFilenames.add(file);
+                        mFilenames.add(getCurrentPath() + File.separator+ file);
                 }
             }
         }
@@ -38,11 +41,8 @@ public class Filedirs {
         return mFilenames;
     }
 
-    public void appendToPath(String filename) {
-        if (mPath.endsWith(File.separator))
-            mPath += filename;
-        else
-            mPath += File.separator + filename;
+    public void setPath(String p) {
+            mPath = p;
     }
 
     public void setPathLevelUp() {

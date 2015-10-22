@@ -2,4 +2,7 @@
     <string name="app_name">FileManager</string>
     <string name="empty_folder">Pusty folder</string>
     <string name="new_dir">Nowy folder</string>
+    <string name="delete">Usuń</string>
+    <string name="cut">Wytnij</string>
+    <string name="paste">Wklej</string>
 </resources>

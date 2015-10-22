@@ -2,6 +2,7 @@ package com.example.arkadiuszkarbowy.filemanager;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import java.util.List;
  */
 public class FileAdapter extends ArrayAdapter<String> {
     private Context mContext;
+    private int mItemCheckedPosition = -1;
 
     public FileAdapter(Context context, int row, List<String> filenames) {
         super(context, row, filenames);
@@ -31,18 +33,40 @@ public class FileAdapter extends ArrayAdapter<String> {
             convertView = inflater.inflate(R.layout.file_item, parent, false);
         }
 
+        if(mItemCheckedPosition == position)
+            convertView.setBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
+        else
+            convertView.setBackgroundColor(Color.TRANSPARENT);
+
         ViewHolder holder = new ViewHolder(convertView);
-        String filename = getItem(position);
-        holder.mFileName.setText(filename);
+        String filepath = getItem(position);
+        holder.mFileName.setText(getFileName(filepath));
 
-        File f = new File(filename);
-
+        File f = new File(filepath);
         if (f.isFile() || !f.isDirectory())
             holder.mFileIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_file));
         else
             holder.mFileIcon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_folder));
 
         return convertView;
+    }
+
+    public void setItemChecked(int position) {
+        mItemCheckedPosition = position;
+        notifyDataSetChanged();
+    }
+
+    public boolean hasItemChecked() {
+        return mItemCheckedPosition != -1;
+    }
+
+    public boolean isChecked(int position) {
+        return mItemCheckedPosition == position;
+    }
+
+    public void uncheck() {
+        mItemCheckedPosition = -1;
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder {
@@ -53,5 +77,16 @@ public class FileAdapter extends ArrayAdapter<String> {
             mFileIcon = (ImageView) v.findViewById(R.id.fileicon);
             mFileName = (TextView) v.findViewById(R.id.filename);
         }
+    }
+
+    private String getFileName(String path) {
+        String filename;
+        int index = path.lastIndexOf(File.separator) + 1;
+        if (index != 0)
+            filename = path.substring(index);
+        else
+            filename = File.separator;
+
+        return filename;
     }
 }

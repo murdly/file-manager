@@ -1,10 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_new_dir"
-        android:orderInCategory="100"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_folder_plus"
-        android:title="@string/new_dir"/>
+
+    <group android:id="@+id/uncheckedState"
+        android:visible="true">
+        <item
+            android:id="@+id/action_new_dir"
+            android:icon="@drawable/ic_folder_plus"
+            android:orderInCategory="100"
+            android:title="@string/new_dir"
+            app:showAsAction="always"/>
+    </group>
+
+    <group android:id="@+id/checkedState"
+        android:visible="false">
+        <item
+            android:id="@+id/action_cut"
+            android:icon="@drawable/ic_cut"
+            android:orderInCategory="100"
+            android:title="@string/cut"
+            app:showAsAction="always"/>
+
+        <item
+            android:id="@+id/action_paste"
+            android:icon="@drawable/ic_paste"
+            android:orderInCategory="100"
+            android:title="@string/paste"
+            app:showAsAction="always"/>
+
+        <item
+            android:id="@+id/action_delete"
+            android:icon="@drawable/ic_delete"
+            android:orderInCategory="100"
+            android:title="@string/delete"
+            app:showAsAction="always"/>
+    </group>
 </menu>

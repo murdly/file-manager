@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,9 +11,10 @@ import android.widget.AbsListView;
 import android.support.v7.widget.ActionMenuView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
 public class FileManagerActivity extends AppCompatActivity implements FileManagerView {
@@ -23,7 +23,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private FileAdapter mAdapter;
     private ActionMenuView mMenuToolbar;
     private FileManagerPresenter mPresenter;
-
+    private TextView mToolbarTitle;
     private int mFirstVisibleItemPosition = 0;
 
     @Override
@@ -32,18 +32,26 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         setContentView(R.layout.activity_main);
 
         mPresenter = new FileManagerPresenterImpl(this, new Filedirs());
+        initToolbars();
+        initFilesList();
+    }
 
+    private void initToolbars() {
+        Toolbar top = (Toolbar) findViewById(R.id.toolbar_top);
+        setSupportActionBar(top);
+        mToolbarTitle = (TextView) top.findViewById(R.id.toolbar_title);
+
+        Toolbar bottom = (Toolbar) findViewById(R.id.toolbar_bottom);
+        mMenuToolbar = (ActionMenuView) bottom.findViewById(R.id.menu_view);
+        mMenuToolbar.setOnMenuItemClickListener(mMenuItemListener);
+    }
+
+    private void initFilesList() {
         mFiles = (ListView) findViewById(R.id.files);
         mFiles.setOnItemClickListener(mOnFileClickListener);
         mFiles.setEmptyView(findViewById(R.id.emptyFolder));
         mFiles.setOnScrollListener(mOnScrollPositionListener);
-
-        initToolbar();
-    }
-
-    private void initToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_bottom);
-        mMenuToolbar = (ActionMenuView) toolbar.findViewById(R.id.menu_view);
+        mFiles.setOnItemLongClickListener(mOnFileSelectedListener);
     }
 
     @Override
@@ -70,7 +78,10 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
 
     @Override
     public void setToolbarTitle(String title) {
-        setTitle(title);
+        if (title.length() > 1 && title.substring(0, 2).endsWith(File.separator))
+            mToolbarTitle.setText(title.substring(1));
+        else
+            mToolbarTitle.setText(title);
     }
 
     @Override
@@ -81,17 +92,51 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            boolean success = mPresenter.openPath(mAdapter.getItem(position));
-            if (!success) Toast.makeText(getContext(), "not a directory", Toast.LENGTH_LONG).show();
-            else
-                mPresenter.retainPosition(mFirstVisibleItemPosition);
+            if (!isSingleItemChecked()) {
+                boolean success = mPresenter.openPath(mAdapter.getItem(position));
+                if (!success) Toast.makeText(getContext(), "not a directory", Toast.LENGTH_LONG).show();
+                else
+                    mPresenter.retainPosition(mFirstVisibleItemPosition);
+            }else{
+                uncheckIfCorresponding(position);
+            }
         }
     };
 
+    private boolean isSingleItemChecked(){
+        return mAdapter.hasItemChecked();
+    }
+
+    private void uncheckIfCorresponding(int position){
+        if (mAdapter.isChecked(position)) {
+            mAdapter.uncheck();
+            enableItemOptions(false);
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        mPresenter.goUp();
+        if(isSingleItemChecked()) {
+            mAdapter.uncheck();
+            enableItemOptions(false);
+        }
 
+        mPresenter.goUp();
+    }
+
+    private AdapterView.OnItemLongClickListener mOnFileSelectedListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            mAdapter.setItemChecked(position);
+            enableItemOptions(true);
+            return true;
+        }
+    };
+
+    private void enableItemOptions(boolean enabled) {
+        Menu m = mMenuToolbar.getMenu();
+        m.setGroupVisible(R.id.uncheckedState, !enabled);
+        m.setGroupVisible(R.id.checkedState, enabled);
     }
 
     private AbsListView.OnScrollListener mOnScrollPositionListener = new AbsListView.OnScrollListener() {
@@ -113,13 +158,17 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_new_dir:
-                break;
-        }
+    private ActionMenuView.OnMenuItemClickListener mMenuItemListener = new ActionMenuView
+            .OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_new_dir:
+                    mPresenter.createDir();
+                    break;
+            }
 
-        return true;
-    }
+            return true;
+        }
+    };
 }

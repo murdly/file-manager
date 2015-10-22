@@ -11,4 +11,6 @@ public interface FileManagerPresenter {
     void retainPosition(int position);
 
     void goUp();
+
+    void createDir();
 }
