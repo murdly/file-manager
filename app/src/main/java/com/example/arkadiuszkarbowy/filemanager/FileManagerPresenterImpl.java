@@ -55,19 +55,67 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
     }
 
     @Override
+    public void showCheckedFileOptions() {
+        mView.enableCheckedItemOptions(true);
+        mView.enableUncheckedItemOptions(false);
+        mView.enableCutItemOptions(false);
+    }
+
+    @Override
+    public void showUncheckedFileOptions() {
+        mView.enableUncheckedItemOptions(true);
+        mView.enableCheckedItemOptions(false);
+        mView.enableCutItemOptions(false);
+    }
+
+    @Override
+    public void showCutFileOptions() {
+        mView.enableCutItemOptions(true);
+        mView.enableUncheckedItemOptions(false);
+        mView.enableCheckedItemOptions(false);
+    }
+
+    @Override
     public void createDir() {
         CreateDirListener listener = new CreateDirListener();
         DirNameDialog.newInstance(listener).show(mView.getContext().getFragmentManager(), "create");
     }
 
     @Override
-    public void deleteDir(String path) {
-        if(mModel.delete(path))
-            refresh();
-        else
-            mView.showToast(R.string.must_be_empty);
+    public void deleteDir(String filename) {
+        if (mModel.delete(filename)) refresh();
+        else mView.showToast(R.string.must_be_empty);
+    }
 
-        mView.endEdition();
+    @Override
+    public void cutItem(String path) {
+        Clipboard.getInstance().save(path);
+
+        if (mModel.deletePath(path)) refresh();
+        else {
+            mView.showToast(R.string.must_be_empty);
+            showUncheckedFileOptions();
+        }
+    }
+
+    @Override
+    public void pasteItem() {
+        String filename = FileAdapter.cutFileName(Clipboard.getInstance().get());
+
+        if (mModel.create(filename)) {
+            refresh();
+            Clipboard.getInstance().clear();
+        }
+        else mView.showToast(R.string.already_exists);
+
+    }
+
+    @Override
+    public void cancelCut() {
+        if(mModel.createPath(Clipboard.getInstance().get())){
+            refresh();
+            Clipboard.getInstance().clear();
+        }
     }
 
     private void refresh() {
@@ -76,12 +124,13 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         mView.setToolbarTitle(mModel.getCurrentPath());
     }
 
-    private class CreateDirListener implements DirNameDialog.DirNameListener{
+    private class CreateDirListener implements DirNameDialog.DirNameListener {
         boolean created = false;
+
         @Override
         public void onResult(String dirname) {
             created = mModel.create(dirname);
-            if(created) refresh();
+            if (created) refresh();
             else mView.showToast(R.string.already_exists);
         }
     }

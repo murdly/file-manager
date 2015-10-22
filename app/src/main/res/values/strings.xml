@@ -10,4 +10,5 @@
     <string name="set_filename">Podaj nazwę folderu</string>
     <string name="create">Utwórz</string>
     <string name="cancel">Anuluj</string>
+    <string name="copy">Kopiuj</string>
 </resources>

@@ -22,10 +22,10 @@
             app:showAsAction="always"/>
 
         <item
-            android:id="@+id/action_paste"
-            android:icon="@drawable/ic_paste"
+            android:id="@+id/action_copy"
+            android:icon="@drawable/ic_copy"
             android:orderInCategory="100"
-            android:title="@string/paste"
+            android:title="@string/copy"
             app:showAsAction="always"/>
 
         <item
@@ -33,6 +33,24 @@
             android:icon="@drawable/ic_delete"
             android:orderInCategory="100"
             android:title="@string/delete"
+            app:showAsAction="always"/>
+    </group>
+
+    <group android:id="@+id/cutState"
+           android:visible="false">
+
+        <item
+            android:id="@+id/action_paste"
+            android:icon="@drawable/ic_paste"
+            android:orderInCategory="100"
+            android:title="@string/paste"
+            app:showAsAction="always"/>
+
+        <item
+            android:id="@+id/action_cancel"
+            android:icon="@drawable/ic_cancel"
+            android:orderInCategory="100"
+            android:title="@string/cancel"
             app:showAsAction="always"/>
     </group>
 </menu>

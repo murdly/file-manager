@@ -14,5 +14,17 @@ public interface FileManagerPresenter {
 
     void createDir();
 
-    void deleteDir(String path);
+    void deleteDir(String filename);
+
+    void cutItem(String filename);
+
+    void pasteItem();
+
+    void cancelCut();
+
+    void showCheckedFileOptions();
+
+    void showUncheckedFileOptions();
+
+    void showCutFileOptions();
 }

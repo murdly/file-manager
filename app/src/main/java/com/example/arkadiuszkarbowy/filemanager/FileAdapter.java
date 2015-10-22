@@ -3,7 +3,6 @@ package com.example.arkadiuszkarbowy.filemanager;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +39,7 @@ public class FileAdapter extends ArrayAdapter<String> {
 
         ViewHolder holder = new ViewHolder(convertView);
         String filepath = getItem(position);
-        holder.mFileName.setText(getFileName(filepath));
+        holder.mFileName.setText(cutFileName(filepath));
 
         File f = new File(filepath);
         if (f.isFile() || !f.isDirectory())
@@ -73,6 +72,10 @@ public class FileAdapter extends ArrayAdapter<String> {
         return getItem(mItemCheckedPosition);
     }
 
+    public String getCheckedItemFilename() {
+        return cutFileName(getCheckedItemPath());
+    }
+
     public static class ViewHolder {
         public ImageView mFileIcon;
         private TextView mFileName;
@@ -83,7 +86,7 @@ public class FileAdapter extends ArrayAdapter<String> {
         }
     }
 
-    private String getFileName(String path) {
+    public static String cutFileName(String path) {
         String filename;
         int index = path.lastIndexOf(File.separator) + 1;
         if (index != 0)

@@ -1,7 +1,6 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -96,9 +95,8 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     }
 
     @Override
-    public void endEdition() {
+    public void uncheck() {
         mAdapter.uncheck();
-        enableItemOptions(false);
     }
 
     private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
@@ -122,7 +120,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private void uncheckIfCorresponding(int position) {
         if (mAdapter.isChecked(position)) {
             mAdapter.uncheck();
-            enableItemOptions(false);
+            mPresenter.showUncheckedFileOptions();
         }
     }
 
@@ -130,7 +128,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     public void onBackPressed() {
         if (isSingleItemChecked()) {
             mAdapter.uncheck();
-            enableItemOptions(false);
+            mPresenter.showUncheckedFileOptions();
         }
 
         mPresenter.goUp();
@@ -139,16 +137,27 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private AdapterView.OnItemLongClickListener mOnFileSelectedListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if(Clipboard.getInstance().full()) return false;
+
             mAdapter.setItemChecked(position);
-            enableItemOptions(true);
+            mPresenter.showCheckedFileOptions();
             return true;
         }
     };
 
-    private void enableItemOptions(boolean enabled) {
-        Menu m = mMenuToolbar.getMenu();
-        m.setGroupVisible(R.id.uncheckedState, !enabled);
-        m.setGroupVisible(R.id.checkedState, enabled);
+    @Override
+    public void enableCheckedItemOptions(boolean enabled) {
+        mMenuToolbar.getMenu().setGroupVisible(R.id.checkedState, enabled);
+    }
+
+    @Override
+    public void enableUncheckedItemOptions(boolean enabled) {
+        mMenuToolbar.getMenu().setGroupVisible(R.id.uncheckedState, enabled);
+    }
+
+    @Override
+    public void enableCutItemOptions(boolean enabled) {
+        mMenuToolbar.getMenu().setGroupVisible(R.id.cutState, enabled);
     }
 
     private AbsListView.OnScrollListener mOnScrollPositionListener = new AbsListView.OnScrollListener() {
@@ -179,8 +188,22 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
                     mPresenter.createDir();
                     break;
                 case R.id.action_delete:
-                    String path = mAdapter.getCheckedItemPath();
-                    mPresenter.deleteDir(path);
+                    mPresenter.deleteDir(mAdapter.getCheckedItemFilename());
+                    uncheck();
+                    mPresenter.showUncheckedFileOptions();
+                    break;
+                case R.id.action_cut:
+                    mPresenter.showCutFileOptions();
+                    mPresenter.cutItem(mAdapter.getCheckedItemPath());
+                    uncheck();
+                    break;
+                case R.id.action_paste:
+                    mPresenter.pasteItem();
+                    mPresenter.showUncheckedFileOptions();
+                    break;
+                case R.id.action_cancel:
+                    mPresenter.showUncheckedFileOptions();
+                    mPresenter.cancelCut();
                     break;
             }
 

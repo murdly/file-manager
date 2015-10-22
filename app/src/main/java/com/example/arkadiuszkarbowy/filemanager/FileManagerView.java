@@ -9,10 +9,22 @@ import java.util.List;
  */
 public interface FileManagerView {
     void setItems(List<String> files);
+
     void setToolbarTitle(String title);
+
     void notifyAdapter();
+
     void restore(int position);
+
     Activity getContext();
+
     void showToast(int resId);
-    void endEdition();
+
+    void enableCheckedItemOptions(boolean enabled);
+
+    void enableUncheckedItemOptions(boolean enabled);
+
+    void enableCutItemOptions(boolean enabled);
+
+    void uncheck();
 }

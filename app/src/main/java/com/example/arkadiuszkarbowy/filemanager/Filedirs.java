@@ -4,6 +4,12 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +24,18 @@ public class Filedirs {
 
     public Filedirs() {
         this.mFilenames = new ArrayList<>();
+        File file = new File(mPath + File.separator + "files", "lol.txt");
+
+        try {
+            FileOutputStream f = new FileOutputStream(file);
+            PrintWriter pw = new PrintWriter(f);
+            pw.println("tekst");
+            pw.flush();
+            pw.close();
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean dirCanRead() {
@@ -57,7 +75,12 @@ public class Filedirs {
         return mPath;
     }
 
-    public boolean delete(String path) {
+    public boolean delete(String filename) {
+        File f = new File(getCurrentPath() + File.separator + filename);
+        return f.exists() && f.delete();
+    }
+
+    public boolean deletePath(String path) {
         File f = new File(path);
         return f.exists() && f.delete();
     }
@@ -65,5 +88,38 @@ public class Filedirs {
     public boolean create(String dirname) {
         File f = new File(getCurrentPath() + File.separator + dirname);
         return !f.exists() && f.mkdir();
+    }
+
+    public boolean createPath(String path) {
+        File f = new File(path);
+        return !f.exists() && f.mkdir();
+    }
+
+    public void copytest(){
+        Log.d("copy", "kopoo");
+        File src = new File(mPath + File.separator +"/lol.txt");
+        File dst = new File(mPath + File.separator + "/hk"+ "/kopia3.txt");
+        try {
+            copyFile(src,dst);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void copyFile(File src, File dst) throws IOException
+    {
+        FileChannel inChannel = new FileInputStream(src).getChannel();
+        FileChannel outChannel = new FileOutputStream(dst).getChannel();
+        try
+        {
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        }
+        finally
+        {
+            if (inChannel != null)
+                inChannel.close();
+            if (outChannel != null)
+                outChannel.close();
+        }
     }
 }
