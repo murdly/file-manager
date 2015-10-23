@@ -1,7 +1,5 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
-import android.app.Activity;
-
 import java.util.List;
 
 /**
@@ -14,13 +12,11 @@ public interface FileManagerView {
 
     void notifyAdapter();
 
-    void restore(int position);
-
-    Activity getContext();
+    void restoreListPosition(int position);
 
     void showToast(int resId);
 
-    void uncheck();
+    void uncheckItem();
 
     void showUncheckedFileOptions();
 

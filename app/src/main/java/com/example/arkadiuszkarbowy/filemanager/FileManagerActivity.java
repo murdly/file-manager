@@ -1,13 +1,11 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.support.v7.widget.ActionMenuView;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -24,7 +22,6 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private ActionMenuView mMenuToolbar;
     private FileManagerPresenter mPresenter;
     private TextView mToolbarTitle;
-    private int mFirstVisibleItemPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +47,6 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         mFiles = (ListView) findViewById(R.id.files);
         mFiles.setOnItemClickListener(mOnFileClickListener);
         mFiles.setEmptyView(findViewById(R.id.emptyFolder));
-        mFiles.setOnScrollListener(mOnScrollPositionListener);
         mFiles.setOnItemLongClickListener(mOnFileSelectedListener);
     }
 
@@ -72,8 +68,8 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     }
 
     @Override
-    public void restore(int position) {
-        mFiles.setSelection(position);
+    public void restoreListPosition(int position) {
+        mFiles.smoothScrollToPosition(position);
     }
 
     @Override
@@ -85,30 +81,25 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     }
 
     @Override
-    public Activity getContext() {
-        return this;
-    }
-
-    @Override
     public void showToast(int resId) {
-        Toast.makeText(getContext(), getString(resId), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void uncheck() {
-        mAdapter.uncheck();
+    public void uncheckItem() {
+        if(isSingleItemChecked()) {
+            mAdapter.uncheck();
+        }
     }
 
     private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (!isSingleItemChecked()) {
-                boolean success = mPresenter.openPath(mAdapter.getItem(position));
-                if (!success) Toast.makeText(getContext(), "not a directory", Toast.LENGTH_LONG).show();
-                else
-                    mPresenter.retainPosition(mFirstVisibleItemPosition);
-            } else {
+            if(isSingleItemChecked()) {
                 uncheckIfCorresponding(position);
+            }else{
+                mPresenter.retainListPosition(position);
+                mPresenter.openPath(mAdapter.getItem(position));
             }
         }
     };
@@ -126,11 +117,6 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
 
     @Override
     public void onBackPressed() {
-        if (isSingleItemChecked()) {
-            mAdapter.uncheck();
-            showUncheckedFileOptions();
-        }
-
         mPresenter.goUp();
     }
 
@@ -178,19 +164,6 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         mMenuToolbar.getMenu().setGroupVisible(R.id.cutState, enabled);
     }
 
-    private AbsListView.OnScrollListener mOnScrollPositionListener = new AbsListView.OnScrollListener() {
-        @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-        }
-
-        @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int
-                totalItemCount) {
-            mFirstVisibleItemPosition = firstVisibleItem;
-        }
-    };
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_toolbar, mMenuToolbar.getMenu());
@@ -203,19 +176,16 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         public boolean onMenuItemClick(MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_new_dir:
-                    mPresenter.createDir();
+                    mPresenter.createDir(getFragmentManager());
                     break;
                 case R.id.action_delete:
                     mPresenter.delete(mAdapter.getCheckedItemPath());
-                    uncheck();
                     break;
                 case R.id.action_cut:
                     mPresenter.move(mAdapter.getCheckedItemPath(), false);
-                    uncheck();
                     break;
                 case R.id.action_copy:
                     mPresenter.move(mAdapter.getCheckedItemPath(), true);
-                    uncheck();
                     break;
                 case R.id.action_paste:
                     mPresenter.paste();

@@ -27,7 +27,11 @@ public class Filedirs {
     public Filedirs(Context c) {
         this.mFilenames = new ArrayList<>();
 
-        File file = new File(mPath + "sdcard/testapp/",  "lol.txt");
+        createTestFile();
+    }
+
+    private void createTestFile(){
+        File file = new File(mPath + "sdcard/testapp/", "lol.txt");
         try {
             FileOutputStream f = new FileOutputStream(file);
             PrintWriter pw = new PrintWriter(f);
@@ -74,13 +78,9 @@ public class Filedirs {
     }
 
     public String getCurrentPath() {
-        return mPath;
+        return (mPath.length() > 1 && mPath.substring(0, 2).endsWith(File.separator)) ? mPath.substring
+                (1) : mPath;
     }
-
-//    public boolean delete(String filename) {
-//        File f = new File(getCurrentPath() + File.separator + filename);
-//        return f.exists() && f.delete();
-//    }
 
     public boolean deletePath(String path) {
         File f = new File(path);
@@ -89,11 +89,6 @@ public class Filedirs {
 
     public boolean create(String dirname) {
         File f = new File(getCurrentPath() + File.separator + dirname);
-        return !f.exists() && f.mkdir();
-    }
-
-    public boolean createPath(String path) {
-        File f = new File(path);
         return !f.exists() && f.mkdir();
     }
 

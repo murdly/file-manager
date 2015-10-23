@@ -1,5 +1,7 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
+import android.app.FragmentManager;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -25,10 +27,11 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         mView.setToolbarTitle(mModel.getCurrentPath());
     }
 
-
     @Override
     public boolean openPath(String path) {
         if (!new File(path).isDirectory() || !mModel.dirCanRead()) {
+            removeLastPosition();
+            mView.showToast(R.string.cant_open);
             return false;
         } else {
             mModel.setPath(path);
@@ -39,27 +42,34 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
     }
 
     @Override
-    public void retainPosition(int position) {
+    public void retainListPosition(int position) {
         mListPositions.add(position);
+    }
+
+    private int removeLastPosition(){
+        return mListPositions.remove(mListPositions.size() - 1);
     }
 
     @Override
     public void goUp() {
+        mView.uncheckItem();
+        showCorrectFileOptions();
+
         mModel.setPathLevelUp();
         refresh();
 
         if (!mListPositions.isEmpty())
-            mView.restore(mListPositions.remove(mListPositions.size() - 1));
+            mView.restoreListPosition(removeLastPosition());
     }
 
-
-
-
+    private void showCorrectFileOptions() {
+        if (!Clipboard.getInstance().full())
+            mView.showUncheckedFileOptions();
+    }
 
     @Override
-    public void createDir() {
-        CreateDirListener listener = new CreateDirListener();
-        DirNameDialog.newInstance(listener).show(mView.getContext().getFragmentManager(), "create");
+    public void createDir(FragmentManager fm) {
+        DirNameDialog.newInstance(new CreateDirListener()).show(fm, "create");
     }
 
     @Override
@@ -67,6 +77,7 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         if (mModel.deletePath(path)) refresh();
         else mView.showToast(R.string.must_be_empty);
 
+        mView.uncheckItem();
         mView.showUncheckedFileOptions();
     }
 
@@ -78,6 +89,8 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
 
     @Override
     public void move(String src, boolean keep) {
+        mView.uncheckItem();
+
         if (new File(src).isDirectory()) {
             mView.showToast(R.string.not_provided);
             mView.showUncheckedFileOptions();
@@ -94,7 +107,6 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
     @Override
     public void paste() {
         Clipboard clipboard = Clipboard.getInstance();
-
         boolean moved = mModel.move(clipboard.get(), clipboard.shouldKeep());
         clipboard.clear();
 
@@ -111,11 +123,9 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
     }
 
     private class CreateDirListener implements DirNameDialog.DirNameListener {
-        boolean created = false;
-
         @Override
         public void onResult(String dirname) {
-            created = mModel.create(dirname);
+            boolean created = mModel.create(dirname);
             if (created) refresh();
             else mView.showToast(R.string.cant_create);
         }
