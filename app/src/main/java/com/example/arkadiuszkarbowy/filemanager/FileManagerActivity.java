@@ -3,7 +3,6 @@ package com.example.arkadiuszkarbowy.filemanager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.widget.ActionMenuView;
@@ -16,10 +15,9 @@ import java.io.File;
 import java.util.List;
 
 public class FileManagerActivity extends AppCompatActivity implements FileManagerView {
-
     private ListView mFiles;
     private FileAdapter mAdapter;
-    private ActionMenuView mMenuToolbar;
+    private FileOptionsMenu mFileMenu;
     private FileManagerPresenter mPresenter;
     private TextView mToolbarTitle;
 
@@ -39,8 +37,9 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         mToolbarTitle = (TextView) top.findViewById(R.id.toolbar_title);
 
         Toolbar bottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-        mMenuToolbar = (ActionMenuView) bottom.findViewById(R.id.menu_view);
-        mMenuToolbar.setOnMenuItemClickListener(mMenuItemListener);
+        mFileMenu = (FileOptionsMenu) bottom.findViewById(R.id.menu_view);
+        getMenuInflater().inflate(R.menu.menu_toolbar, mFileMenu.getMenu());
+        mFileMenu.setOnMenuItemClickListener(mMenuItemListener);
     }
 
     private void initFilesList() {
@@ -87,7 +86,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
 
     @Override
     public void uncheckItem() {
-        if(isSingleItemChecked()) {
+        if (isSingleItemChecked()) {
             mAdapter.uncheck();
         }
     }
@@ -95,9 +94,9 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if(isSingleItemChecked()) {
+            if (isSingleItemChecked()) {
                 uncheckIfCorresponding(position);
-            }else{
+            } else {
                 mPresenter.retainListPosition(position);
                 mPresenter.openPath(mAdapter.getItem(position));
             }
@@ -133,41 +132,17 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
 
     @Override
     public void showUncheckedFileOptions() {
-        enableUncheckedItemOptions(true);
-        enableCheckedItemOptions(false);
-        enableCutItemOptions(false);
+        mFileMenu.showItemUncheckedOptions();
     }
 
     @Override
     public void showCheckedFileOptions() {
-        enableCheckedItemOptions(true);
-        enableUncheckedItemOptions(false);
-        enableCutItemOptions(false);
+        mFileMenu.showItemCheckedOptions();
     }
 
     @Override
     public void showPasteFileOptions() {
-        enableCutItemOptions(true);
-        enableUncheckedItemOptions(false);
-        enableCheckedItemOptions(false);
-    }
-
-    private void enableCheckedItemOptions(boolean enabled) {
-        mMenuToolbar.getMenu().setGroupVisible(R.id.checkedState, enabled);
-    }
-
-    private void enableUncheckedItemOptions(boolean enabled) {
-        mMenuToolbar.getMenu().setGroupVisible(R.id.uncheckedState, enabled);
-    }
-
-    private void enableCutItemOptions(boolean enabled) {
-        mMenuToolbar.getMenu().setGroupVisible(R.id.cutState, enabled);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar, mMenuToolbar.getMenu());
-        return true;
+        mFileMenu.showItemPasteOptions();
     }
 
     private ActionMenuView.OnMenuItemClickListener mMenuItemListener = new ActionMenuView

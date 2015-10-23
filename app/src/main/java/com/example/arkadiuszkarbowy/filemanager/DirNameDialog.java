@@ -6,6 +6,8 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.widget.Button;
@@ -83,7 +85,17 @@ public class DirNameDialog extends DialogFragment {
 
         @Override
         public void afterTextChanged(Editable s) {
-
+            InputFilter filter = new InputFilter() {
+                @Override
+                public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                    String blockCharacterSet = ".,/%$?*@#&+()'";
+                    if (source != null && blockCharacterSet.contains(("" + source))) {
+                        return "";
+                    }
+                    return null;
+                }
+            };
+            s.setFilters(new InputFilter[]{filter});
         }
     };
 

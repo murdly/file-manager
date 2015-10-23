@@ -36,7 +36,7 @@
             app:showAsAction="always"/>
     </group>
 
-    <group android:id="@+id/cutState"
+    <group android:id="@+id/pasteState"
            android:visible="false">
 
         <item
