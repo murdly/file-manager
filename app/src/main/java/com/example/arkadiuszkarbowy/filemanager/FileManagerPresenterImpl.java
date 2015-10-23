@@ -1,6 +1,8 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
 import android.app.FragmentManager;
+import android.content.Intent;
+import android.net.Uri;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,11 +12,11 @@ import java.util.ArrayList;
  */
 public class FileManagerPresenterImpl implements FileManagerPresenter {
     private FileManagerView mView;
-    private Filedirs mModel;
+    private Filedir mModel;
 
     private ArrayList<Integer> mListPositions = new ArrayList();
 
-    public FileManagerPresenterImpl(FileManagerView view, Filedirs model) {
+    public FileManagerPresenterImpl(FileManagerView view, Filedir model) {
         mView = view;
         mModel = model;
     }
@@ -29,16 +31,24 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
 
     @Override
     public boolean openPath(String path) {
-        if (!new File(path).isDirectory() || !mModel.dirCanRead()) {
-            removeLastPosition();
-            mView.showToast(R.string.cant_open);
-            return false;
-        } else {
+        File file = new File(path);
+
+        if (file.isDirectory() && mModel.dirCanRead()) {
             mModel.setPath(path);
             refresh();
+            return true;
         }
 
-        return true;
+        if (file.isFile()) {
+            Intent myIntent = new Intent(Intent.ACTION_VIEW);
+            myIntent.setDataAndType(Uri.fromFile(file), Utils.getMimeType(file.getAbsolutePath()));
+            mView.launchChooser(myIntent);
+        } else {
+            removeLastPosition();
+            mView.showToast(R.string.cant_open);
+        }
+
+        return false;
     }
 
     @Override
@@ -46,20 +56,19 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         mListPositions.add(position);
     }
 
-    private int removeLastPosition(){
-        return mListPositions.remove(mListPositions.size() - 1);
-    }
-
     @Override
     public void goUp() {
         mView.uncheckItem();
         showCorrectFileOptions();
-
         mModel.setPathLevelUp();
         refresh();
 
         if (!mListPositions.isEmpty())
             mView.restoreListPosition(removeLastPosition());
+    }
+
+    private int removeLastPosition() {
+        return mListPositions.remove(mListPositions.size() - 1);
     }
 
     private void showCorrectFileOptions() {
@@ -74,16 +83,10 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
 
     @Override
     public void delete(String path) {
-        if (mModel.deletePath(path)) refresh();
+        if (mModel.delete(path)) refresh();
         else mView.showToast(R.string.must_be_empty);
 
         mView.uncheckItem();
-        mView.showUncheckedFileOptions();
-    }
-
-    @Override
-    public void cancel() {
-        Clipboard.getInstance().clear();
         mView.showUncheckedFileOptions();
     }
 
@@ -113,6 +116,12 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         if (moved) refresh();
         else mView.showToast(R.string.cant_create);
 
+        mView.showUncheckedFileOptions();
+    }
+
+    @Override
+    public void cancel() {
+        Clipboard.getInstance().clear();
         mView.showUncheckedFileOptions();
     }
 

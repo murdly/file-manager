@@ -1,16 +1,9 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,33 +12,13 @@ import java.util.List;
 /**
  * Created by arkadiuszkarbowy on 16/10/15.
  */
-public class Filedirs {
+public class Filedir {
 
-    private String mPath = "/";
+    private String mPath = File.separator;
     private List<String> mFilenames;
 
-    public Filedirs(Context c) {
+    public Filedir() {
         this.mFilenames = new ArrayList<>();
-
-        createTestFile();
-    }
-
-    private void createTestFile(){
-        File file = new File(mPath + "sdcard/testapp/", "lol.txt");
-        try {
-            FileOutputStream f = new FileOutputStream(file);
-            PrintWriter pw = new PrintWriter(f);
-            pw.println("tekst");
-            pw.flush();
-            pw.close();
-            f.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean dirCanRead() {
-        return new File(mPath).canRead();
     }
 
     public List<String> collectDirs() {
@@ -56,7 +29,10 @@ public class Filedirs {
         if (list != null) {
             for (String file : list) {
                 if (!file.startsWith(".")) {
-                    mFilenames.add(getCurrentPath() + File.separator + file);
+                    if (getCurrentPath().endsWith(File.separator))
+                        mFilenames.add(getCurrentPath() + file);
+                    else
+                        mFilenames.add(getCurrentPath() + File.separator + file);
                 }
             }
         }
@@ -65,12 +41,16 @@ public class Filedirs {
         return mFilenames;
     }
 
+    public boolean dirCanRead() {
+        return new File(mPath).canRead();
+    }
+
     public void setPath(String p) {
         mPath = p;
     }
 
     public void setPathLevelUp() {
-        int index = mPath.lastIndexOf("/");
+        int index = mPath.lastIndexOf(File.separator);
         if (index != 0)
             mPath = mPath.substring(0, index);
         else
@@ -78,11 +58,10 @@ public class Filedirs {
     }
 
     public String getCurrentPath() {
-        return (mPath.length() > 1 && mPath.substring(0, 2).endsWith(File.separator)) ? mPath.substring
-                (1) : mPath;
+        return mPath;
     }
 
-    public boolean deletePath(String path) {
+    public boolean delete(String path) {
         File f = new File(path);
         return f.exists() && f.delete();
     }
@@ -94,12 +73,12 @@ public class Filedirs {
 
     public boolean move(String srcPath, boolean keep) {
         File src = new File(srcPath);
-        File dst = new File(getCurrentPath() + File.separator + FileAdapter.cutFileName(srcPath));
+        File dst = new File(getCurrentPath() + File.separator + Utils.parseFileName(srcPath));
 
         boolean moved = false;
         try {
             moved = copyFile(src, dst);
-            if (!keep) deletePath(srcPath);
+            if (!keep) delete(srcPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
