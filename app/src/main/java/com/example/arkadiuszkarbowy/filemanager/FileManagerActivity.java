@@ -11,7 +11,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 64ec84a8ef4b765a357e87ba3a60b5ab5cf490b9
 import java.util.List;
 
 public class FileManagerActivity extends AppCompatActivity implements FileManagerView {
