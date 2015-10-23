@@ -1,7 +1,5 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
-import android.util.Log;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -54,26 +52,9 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
             mView.restore(mListPositions.remove(mListPositions.size() - 1));
     }
 
-    @Override
-    public void showCheckedFileOptions() {
-        mView.enableCheckedItemOptions(true);
-        mView.enableUncheckedItemOptions(false);
-        mView.enableCutItemOptions(false);
-    }
 
-    @Override
-    public void showUncheckedFileOptions() {
-        mView.enableUncheckedItemOptions(true);
-        mView.enableCheckedItemOptions(false);
-        mView.enableCutItemOptions(false);
-    }
 
-    @Override
-    public void showCutFileOptions() {
-        mView.enableCutItemOptions(true);
-        mView.enableUncheckedItemOptions(false);
-        mView.enableCheckedItemOptions(false);
-    }
+
 
     @Override
     public void createDir() {
@@ -82,40 +63,45 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
     }
 
     @Override
-    public void deleteDir(String filename) {
-        if (mModel.delete(filename)) refresh();
-        else mView.showToast(R.string.must_be_empty);
-    }
-
-    @Override
-    public void cutItem(String path) {
-        Clipboard.getInstance().save(path);
-
+    public void delete(String path) {
         if (mModel.deletePath(path)) refresh();
-        else {
-            mView.showToast(R.string.must_be_empty);
-            showUncheckedFileOptions();
-        }
+        else mView.showToast(R.string.must_be_empty);
+
+        mView.showUncheckedFileOptions();
     }
 
     @Override
-    public void pasteItem() {
-        String filename = FileAdapter.cutFileName(Clipboard.getInstance().get());
-
-        if (mModel.create(filename)) {
-            refresh();
-            Clipboard.getInstance().clear();
-        }
-        else mView.showToast(R.string.already_exists);
-
+    public void cancel() {
+        Clipboard.getInstance().clear();
+        mView.showUncheckedFileOptions();
     }
 
     @Override
-    public void cancelCut() {
-        if(mModel.createPath(Clipboard.getInstance().get())){
-            refresh();
-            Clipboard.getInstance().clear();
+    public void move(String src, boolean keep) {
+        if (new File(src).isDirectory()) {
+            mView.showToast(R.string.not_provided);
+            mView.showUncheckedFileOptions();
+            return;
         }
+
+        mView.showPasteFileOptions();
+        Clipboard.getInstance().save(src, keep);
+
+        if (keep) mView.showToast(R.string.choose_destination);
+        else mView.showToast(R.string.copied_to_clipboard);
+    }
+
+    @Override
+    public void paste() {
+        Clipboard clipboard = Clipboard.getInstance();
+
+        boolean moved = mModel.move(clipboard.get(), clipboard.shouldKeep());
+        clipboard.clear();
+
+        if (moved) refresh();
+        else mView.showToast(R.string.cant_create);
+
+        mView.showUncheckedFileOptions();
     }
 
     private void refresh() {
@@ -131,7 +117,7 @@ public class FileManagerPresenterImpl implements FileManagerPresenter {
         public void onResult(String dirname) {
             created = mModel.create(dirname);
             if (created) refresh();
-            else mView.showToast(R.string.already_exists);
+            else mView.showToast(R.string.cant_create);
         }
     }
 }

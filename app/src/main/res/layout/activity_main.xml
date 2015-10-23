@@ -56,7 +56,8 @@
             android:layout_height="wrap_content"
             android:choiceMode="singleChoice"
             android:paddingBottom="8dp"
-            android:paddingTop="8dp"/>
+            android:paddingTop="8dp"
+            android:fadeScrollbars="false"/>
 
 
         <TextView

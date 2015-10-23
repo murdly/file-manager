@@ -20,11 +20,11 @@ public interface FileManagerView {
 
     void showToast(int resId);
 
-    void enableCheckedItemOptions(boolean enabled);
-
-    void enableUncheckedItemOptions(boolean enabled);
-
-    void enableCutItemOptions(boolean enabled);
-
     void uncheck();
+
+    void showUncheckedFileOptions();
+
+    void showCheckedFileOptions();
+
+    void showPasteFileOptions();
 }

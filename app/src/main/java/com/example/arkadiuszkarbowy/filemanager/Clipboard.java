@@ -5,6 +5,7 @@ package com.example.arkadiuszkarbowy.filemanager;
  */
 public class Clipboard {
     private String mPath = null;
+    private boolean mKeep = false;
     private static Clipboard mInstance = null;
 
     private Clipboard() {
@@ -16,8 +17,9 @@ public class Clipboard {
         return mInstance;
     }
 
-    public void save(String path) {
+    public void save(String path, boolean keep) {
         mPath = path;
+        mKeep = keep;
     }
 
     public String get() {
@@ -31,4 +33,6 @@ public class Clipboard {
     public boolean full() {
         return mPath != null;
     }
+
+    public boolean shouldKeep() { return mKeep;}
 }

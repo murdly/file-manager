@@ -31,7 +31,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPresenter = new FileManagerPresenterImpl(this, new Filedirs());
+        mPresenter = new FileManagerPresenterImpl(this, new Filedirs(this));
         initToolbars();
         initFilesList();
     }
@@ -120,7 +120,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private void uncheckIfCorresponding(int position) {
         if (mAdapter.isChecked(position)) {
             mAdapter.uncheck();
-            mPresenter.showUncheckedFileOptions();
+            showUncheckedFileOptions();
         }
     }
 
@@ -128,7 +128,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     public void onBackPressed() {
         if (isSingleItemChecked()) {
             mAdapter.uncheck();
-            mPresenter.showUncheckedFileOptions();
+            showUncheckedFileOptions();
         }
 
         mPresenter.goUp();
@@ -137,26 +137,44 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     private AdapterView.OnItemLongClickListener mOnFileSelectedListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            if(Clipboard.getInstance().full()) return false;
+            if (Clipboard.getInstance().full()) return false;
 
             mAdapter.setItemChecked(position);
-            mPresenter.showCheckedFileOptions();
+            showCheckedFileOptions();
             return true;
         }
     };
 
     @Override
-    public void enableCheckedItemOptions(boolean enabled) {
+    public void showUncheckedFileOptions() {
+        enableUncheckedItemOptions(true);
+        enableCheckedItemOptions(false);
+        enableCutItemOptions(false);
+    }
+
+    @Override
+    public void showCheckedFileOptions() {
+        enableCheckedItemOptions(true);
+        enableUncheckedItemOptions(false);
+        enableCutItemOptions(false);
+    }
+
+    @Override
+    public void showPasteFileOptions() {
+        enableCutItemOptions(true);
+        enableUncheckedItemOptions(false);
+        enableCheckedItemOptions(false);
+    }
+
+    private void enableCheckedItemOptions(boolean enabled) {
         mMenuToolbar.getMenu().setGroupVisible(R.id.checkedState, enabled);
     }
 
-    @Override
-    public void enableUncheckedItemOptions(boolean enabled) {
+    private void enableUncheckedItemOptions(boolean enabled) {
         mMenuToolbar.getMenu().setGroupVisible(R.id.uncheckedState, enabled);
     }
 
-    @Override
-    public void enableCutItemOptions(boolean enabled) {
+    private void enableCutItemOptions(boolean enabled) {
         mMenuToolbar.getMenu().setGroupVisible(R.id.cutState, enabled);
     }
 
@@ -188,22 +206,22 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
                     mPresenter.createDir();
                     break;
                 case R.id.action_delete:
-                    mPresenter.deleteDir(mAdapter.getCheckedItemFilename());
+                    mPresenter.delete(mAdapter.getCheckedItemPath());
                     uncheck();
-                    mPresenter.showUncheckedFileOptions();
                     break;
                 case R.id.action_cut:
-                    mPresenter.showCutFileOptions();
-                    mPresenter.cutItem(mAdapter.getCheckedItemPath());
+                    mPresenter.move(mAdapter.getCheckedItemPath(), false);
+                    uncheck();
+                    break;
+                case R.id.action_copy:
+                    mPresenter.move(mAdapter.getCheckedItemPath(), true);
                     uncheck();
                     break;
                 case R.id.action_paste:
-                    mPresenter.pasteItem();
-                    mPresenter.showUncheckedFileOptions();
+                    mPresenter.paste();
                     break;
                 case R.id.action_cancel:
-                    mPresenter.showUncheckedFileOptions();
-                    mPresenter.cancelCut();
+                    mPresenter.cancel();
                     break;
             }
 

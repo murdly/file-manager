@@ -5,10 +5,13 @@
     <string name="delete">Usuń</string>
     <string name="cut">Wytnij</string>
     <string name="paste">Wklej</string>
-    <string name="already_exists">Taki folder już istnieje.</string>
+    <string name="cant_create">Nie można utworzyć.</string>
     <string name="must_be_empty">Folder musi być pusty.</string>
     <string name="set_filename">Podaj nazwę folderu</string>
     <string name="create">Utwórz</string>
     <string name="cancel">Anuluj</string>
     <string name="copy">Kopiuj</string>
+    <string name="copied_to_clipboard">Zapisano w schowku</string>
+    <string name="choose_destination">Wybierz miejsce docelowe</string>
+    <string name="not_provided">Operacja niedozwolona</string>
 </resources>

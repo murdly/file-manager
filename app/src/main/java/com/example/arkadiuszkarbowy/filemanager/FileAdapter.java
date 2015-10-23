@@ -72,10 +72,6 @@ public class FileAdapter extends ArrayAdapter<String> {
         return getItem(mItemCheckedPosition);
     }
 
-    public String getCheckedItemFilename() {
-        return cutFileName(getCheckedItemPath());
-    }
-
     public static class ViewHolder {
         public ImageView mFileIcon;
         private TextView mFileName;

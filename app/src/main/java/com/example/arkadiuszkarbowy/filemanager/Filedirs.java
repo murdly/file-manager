@@ -1,7 +1,9 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
+import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,13 +21,13 @@ import java.util.List;
  */
 public class Filedirs {
 
-    private String mPath = "/data/user/0/com.example.arkadiuszkarbowy.filemanager";//File.separator;
+    private String mPath = "/";
     private List<String> mFilenames;
 
-    public Filedirs() {
+    public Filedirs(Context c) {
         this.mFilenames = new ArrayList<>();
-        File file = new File(mPath + File.separator + "files", "lol.txt");
 
+        File file = new File(mPath + "sdcard/testapp/",  "lol.txt");
         try {
             FileOutputStream f = new FileOutputStream(file);
             PrintWriter pw = new PrintWriter(f);
@@ -50,7 +52,7 @@ public class Filedirs {
         if (list != null) {
             for (String file : list) {
                 if (!file.startsWith(".")) {
-                        mFilenames.add(getCurrentPath() + File.separator+ file);
+                    mFilenames.add(getCurrentPath() + File.separator + file);
                 }
             }
         }
@@ -60,7 +62,7 @@ public class Filedirs {
     }
 
     public void setPath(String p) {
-            mPath = p;
+        mPath = p;
     }
 
     public void setPathLevelUp() {
@@ -75,10 +77,10 @@ public class Filedirs {
         return mPath;
     }
 
-    public boolean delete(String filename) {
-        File f = new File(getCurrentPath() + File.separator + filename);
-        return f.exists() && f.delete();
-    }
+//    public boolean delete(String filename) {
+//        File f = new File(getCurrentPath() + File.separator + filename);
+//        return f.exists() && f.delete();
+//    }
 
     public boolean deletePath(String path) {
         File f = new File(path);
@@ -95,31 +97,34 @@ public class Filedirs {
         return !f.exists() && f.mkdir();
     }
 
-    public void copytest(){
-        Log.d("copy", "kopoo");
-        File src = new File(mPath + File.separator +"/lol.txt");
-        File dst = new File(mPath + File.separator + "/hk"+ "/kopia3.txt");
+    public boolean move(String srcPath, boolean keep) {
+        File src = new File(srcPath);
+        File dst = new File(getCurrentPath() + File.separator + FileAdapter.cutFileName(srcPath));
+
+        boolean moved = false;
         try {
-            copyFile(src,dst);
+            moved = copyFile(src, dst);
+            if (!keep) deletePath(srcPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return moved;
     }
 
-    public static void copyFile(File src, File dst) throws IOException
-    {
+    private static boolean copyFile(File src, File dst) throws IOException {
+        long copied = 0;
+
         FileChannel inChannel = new FileInputStream(src).getChannel();
         FileChannel outChannel = new FileOutputStream(dst).getChannel();
-        try
-        {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-        }
-        finally
-        {
+        try {
+            copied = inChannel.transferTo(0, inChannel.size(), outChannel);
+        } finally {
             if (inChannel != null)
                 inChannel.close();
-            if (outChannel != null)
-                outChannel.close();
+            outChannel.close();
         }
+
+        return copied != 0;
     }
 }
