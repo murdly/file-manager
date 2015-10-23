@@ -1,5 +1,6 @@
 package com.example.arkadiuszkarbowy.filemanager;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -11,7 +12,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.List;
 
 public class FileManagerActivity extends AppCompatActivity implements FileManagerView {
@@ -26,7 +26,7 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPresenter = new FileManagerPresenterImpl(this, new Filedirs(this));
+        mPresenter = new FileManagerPresenterImpl(this, new Filedir());
         initToolbars();
         initFilesList();
     }
@@ -50,6 +50,11 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     }
 
     @Override
+    public void setToolbarTitle(String title) {
+        mToolbarTitle.setText(title);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mPresenter.onResume();
@@ -69,80 +74,6 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
     @Override
     public void restoreListPosition(int position) {
         mFiles.smoothScrollToPosition(position);
-    }
-
-    @Override
-    public void setToolbarTitle(String title) {
-        if (title.length() > 1 && title.substring(0, 2).endsWith(File.separator))
-            mToolbarTitle.setText(title.substring(1));
-        else
-            mToolbarTitle.setText(title);
-    }
-
-    @Override
-    public void showToast(int resId) {
-        Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void uncheckItem() {
-        if (isSingleItemChecked()) {
-            mAdapter.uncheck();
-        }
-    }
-
-    private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (isSingleItemChecked()) {
-                uncheckIfCorresponding(position);
-            } else {
-                mPresenter.retainListPosition(position);
-                mPresenter.openPath(mAdapter.getItem(position));
-            }
-        }
-    };
-
-    private boolean isSingleItemChecked() {
-        return mAdapter.hasItemChecked();
-    }
-
-    private void uncheckIfCorresponding(int position) {
-        if (mAdapter.isChecked(position)) {
-            mAdapter.uncheck();
-            showUncheckedFileOptions();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        mPresenter.goUp();
-    }
-
-    private AdapterView.OnItemLongClickListener mOnFileSelectedListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            if (Clipboard.getInstance().full()) return false;
-
-            mAdapter.setItemChecked(position);
-            showCheckedFileOptions();
-            return true;
-        }
-    };
-
-    @Override
-    public void showUncheckedFileOptions() {
-        mFileMenu.showItemUncheckedOptions();
-    }
-
-    @Override
-    public void showCheckedFileOptions() {
-        mFileMenu.showItemCheckedOptions();
-    }
-
-    @Override
-    public void showPasteFileOptions() {
-        mFileMenu.showItemPasteOptions();
     }
 
     private ActionMenuView.OnMenuItemClickListener mMenuItemListener = new ActionMenuView
@@ -173,4 +104,75 @@ public class FileManagerActivity extends AppCompatActivity implements FileManage
             return true;
         }
     };
+
+    private AdapterView.OnItemLongClickListener mOnFileSelectedListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if (Clipboard.getInstance().full()) return false;
+
+            mAdapter.setItemChecked(position);
+            showCheckedFileOptions();
+            return true;
+        }
+    };
+
+    private AdapterView.OnItemClickListener mOnFileClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (isSingleItemChecked()) {
+                uncheckIfCorresponding(position);
+            } else {
+                boolean opened = mPresenter.openPath(mAdapter.getItem(position));
+                if (opened) mPresenter.retainListPosition(position);
+            }
+        }
+    };
+
+    private boolean isSingleItemChecked() {
+        return mAdapter.hasItemChecked();
+    }
+
+    private void uncheckIfCorresponding(int position) {
+        if (mAdapter.isChecked(position)) {
+            mAdapter.uncheck();
+            showUncheckedFileOptions();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        mPresenter.goUp();
+    }
+
+
+    @Override
+    public void uncheckItem() {
+        if (isSingleItemChecked())
+            mAdapter.uncheck();
+    }
+
+    @Override
+    public void showUncheckedFileOptions() {
+        mFileMenu.showItemUncheckedOptions();
+    }
+
+    @Override
+    public void showCheckedFileOptions() {
+        mFileMenu.showItemCheckedOptions();
+    }
+
+    @Override
+    public void showPasteFileOptions() {
+        mFileMenu.showItemPasteOptions();
+    }
+
+    @Override
+    public void launchChooser(Intent i) {
+        startActivity(Intent.createChooser(i, getString(R.string.choose_app)));
+    }
+
+    @Override
+    public void showToast(int resId) {
+        Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show();
+    }
 }

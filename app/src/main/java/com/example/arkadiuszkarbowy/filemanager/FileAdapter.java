@@ -39,7 +39,7 @@ public class FileAdapter extends ArrayAdapter<String> {
 
         ViewHolder holder = new ViewHolder(convertView);
         String filepath = getItem(position);
-        holder.mFileName.setText(cutFileName(filepath));
+        holder.mFileName.setText(Utils.parseFileName(filepath));
 
         File f = new File(filepath);
         if (f.isFile() || !f.isDirectory())
@@ -80,16 +80,5 @@ public class FileAdapter extends ArrayAdapter<String> {
             mFileIcon = (ImageView) v.findViewById(R.id.fileicon);
             mFileName = (TextView) v.findViewById(R.id.filename);
         }
-    }
-
-    public static String cutFileName(String path) {
-        String filename;
-        int index = path.lastIndexOf(File.separator) + 1;
-        if (index != 0)
-            filename = path.substring(index);
-        else
-            filename = File.separator;
-
-        return filename;
     }
 }

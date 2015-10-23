@@ -15,4 +15,5 @@
     <string name="choose_destination">Wybierz miejsce docelowe</string>
     <string name="not_provided">Operacja niedozwolona</string>
     <string name="cant_open">Nie można otworzyć</string>
+    <string name="choose_app">Wybierz aplikację do otwarcia pliku:</string>
 </resources>

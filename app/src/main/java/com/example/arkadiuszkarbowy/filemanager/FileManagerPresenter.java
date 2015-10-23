@@ -8,7 +8,7 @@ import android.app.FragmentManager;
 public interface FileManagerPresenter {
     void onResume();
 
-    boolean openPath(String filename);
+    boolean openPath(String path);
 
     void retainListPosition(int position);
 
@@ -16,7 +16,7 @@ public interface FileManagerPresenter {
 
     void createDir(FragmentManager fm);
 
-    void delete(String filename);
+    void delete(String path);
 
     void move(String src, boolean keep);
 
