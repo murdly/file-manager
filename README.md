@@ -1,4 +1,4 @@
-![phpCqJK5hAM.jpg](https://bitbucket.org/repo/6yoxM6/images/4107256068-phpCqJK5hAM.jpg)# Description #
+# Description #
 A minimalist file manager app, which provides a very basic functionality such as: creating folders, coping, deleting, cutting and pasting files.
 
 ### Screenshots ###
